@@ -3,7 +3,7 @@
 **Dungeon Auto Legion**은 브라우저에서 설치 없이 가볍게 즐길 수 있는 **로그라이크 오토배틀러(Auto-battler)** 웹 게임입니다. 
 다양한 직업을 가진 용병들을 고용하고, 진형을 갖춰 던전의 끝에 도달하세요!
 
-### 🎮 [게임 플레이하러 가기 (여기에 Netlify/GitHub Pages 주소 입력)](#)
+### 🎮 [게임 플레이하러 가기 (https://dungeonautolegion.netlify.app/)](#)
 
 ---
 
