@@ -4,7 +4,10 @@ logs/
 .env
 .env.*
 *.log
+
 admin.html
 admin.css
 admin.js
-src/
+
+src/bot/
+src/rog/
