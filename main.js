@@ -119,11 +119,19 @@ function renderStart() {
           <button onclick="openHelpModal()" style="padding: 12px 24px; font-size: 16px; width: 240px; background: rgba(255,255,255,0.05); border-color: var(--line); color: var(--text);">도움말</button>
           ${hasAnyData ? `<button onclick="confirmHardReset()" style="padding: 12px 24px; font-size: 16px; width: 240px; background: rgba(212, 107, 104, 0.1); border-color: var(--red); color: var(--red);">데이터 전체 초기화</button>` : ""}
         </div>
+        <!-- 시작 화면 애드센스 광고 영역 -->
+        <div class="ad-container" style="margin-top: 32px; min-height: 100px; text-align: center;">
+          <ins class="adsbygoogle"
+               style="display:inline-block;width:320px;height:100px"
+               data-ad-client="ca-pub-YOUR_CLIENT_ID"
+               data-ad-slot="YOUR_SLOT_ID"></ins>
+        </div>
       </div>
     </section>
     ${gameState.isHelpModalOpen ? renderHelpModal() : ""}
     ${gameState.isHallOfFameModalOpen ? renderHallOfFameModal() : ""}
   `;
+  try { (window.adsbygoogle = window.adsbygoogle || []).push({}); } catch (e) {}
 }
 
 function openHallOfFameModal() {

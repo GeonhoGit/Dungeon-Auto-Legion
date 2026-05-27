@@ -57,7 +57,6 @@ function unitCard(unit, attrs = "") {
         <p>${ability.skill?.description || ""}</p>
         <strong>특성: ${ability.trait?.name || "정보 없음"}</strong>
         <p>${ability.trait?.description || ""}</p>
-        ${getPotentialSynergyHtml(unit)}
         ${renderUnitStatBreakdown(unit, showFinalStats)}
       </div>
     </div>
@@ -145,59 +144,6 @@ function renderUnitStatBreakdown(unit, battleMode = false) {
       ${bonusLine("hp", "체력", breakdown.maxHp)}
       ${bonusLine("defense", "방어력", breakdown.defense)}
       ${bonusLine("attackSpeed", "공격 속도", breakdown.attackSpeed)}
-    </div>
-  `;
-}
-
-function getPotentialSynergyHtml(unit) {
-  if (!unit || !unit.typeKey) return "";
-  
-  const fieldUnitTypes = getAliveFieldUnits().map(u => u.typeKey);
-  const currentTypeCounts = fieldUnitTypes.reduce((acc, t) => { acc[t] = (acc[t] || 0) + 1; return acc; }, {});
-  
-  const simulatedTypes = [...fieldUnitTypes, unit.typeKey];
-  const simulatedCounts = simulatedTypes.reduce((acc, t) => { acc[t] = (acc[t] || 0) + 1; return acc; }, {});
-
-  const relevantSynergies = synergyData.filter(syn => syn.req.includes(unit.typeKey));
-  if (relevantSynergies.length === 0) return "";
-
-  let listHtml = "";
-  relevantSynergies.forEach(syn => {
-    const reqCounts = syn.req.reduce((acc, t) => { acc[t] = (acc[t] || 0) + 1; return acc; }, {});
-    
-    let currentFulfilled = 0;
-    Object.entries(reqCounts).forEach(([reqType, reqAmt]) => {
-      currentFulfilled += Math.min(currentTypeCounts[reqType] || 0, reqAmt);
-    });
-    
-    let simulatedFulfilled = 0;
-    Object.entries(reqCounts).forEach(([reqType, reqAmt]) => {
-      simulatedFulfilled += Math.min(simulatedCounts[reqType] || 0, reqAmt);
-    });
-
-    const isNowActive = simulatedFulfilled === syn.req.length;
-    
-    // 이 유닛을 필드에 추가했을 때 시너지 카운트가 오르는 경우만 표시
-    if (simulatedFulfilled > currentFulfilled) {
-      if (isNowActive) {
-        listHtml += `
-          <div style="font-size:0.95em; margin-top:6px; margin-bottom:4px; padding: 8px; border: 1px solid var(--blue); border-radius: 4px; background: rgba(127, 167, 217, 0.15); color: var(--blue); font-weight: bold; animation: willBeActivePulse 2.5s infinite ease-in-out; text-shadow: 0 1px 2px #000;">
-            ${syn.name} (활성화 예정!)
-            <div style="font-size: 0.9em; font-weight: normal; color: #b1d4ff; margin-top: 4px; text-shadow: none;">${syn.desc}</div>
-          </div>
-        `;
-      } else {
-        listHtml += `<div style="font-size:0.9em; margin-bottom:2px; color:#d1c7b7;">- ${syn.name} (${simulatedFulfilled}/${syn.req.length})</div>`;
-      }
-    }
-  });
-  
-  if (!listHtml) return "";
-
-  return `
-    <div style="margin-top: 12px; padding-top: 8px; border-top: 1px dashed rgba(255,255,255,0.2);">
-      <strong style="color:var(--gold); display:block; margin-bottom:4px;">시너지 기여 정보</strong>
-      ${listHtml}
     </div>
   `;
 }

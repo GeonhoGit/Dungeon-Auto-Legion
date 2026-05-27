@@ -32,7 +32,6 @@ function renderShopRoom() {
             <p>${ability.skill.description}</p>
             <strong>특성: ${ability.trait.name}</strong>
             <p>${ability.trait.description}</p>
-            ${getPotentialSynergyHtml(unit)}
             ${renderUnitStatBreakdown(unit, false)}
           </div>
         </button>

@@ -181,7 +181,6 @@ function battleCard(unit, side) {
         <p>${ability.skill?.description || ""}</p>
         <strong>특성: ${ability.trait?.name || "정보 없음"}</strong>
         <p>${ability.trait?.description || ""}</p>
-        ${getPotentialSynergyHtml(unit)}
         ${renderUnitStatBreakdown(unit, true)}
       </div>
     </div>

@@ -385,7 +385,6 @@ function rewardCard(reward, index) {
         <p>${ability.skill.description}</p>
         <strong>특성: ${ability.trait.name}</strong>
         <p>${ability.trait.description}</p>
-        ${getPotentialSynergyHtml(reward.unit)}
         ${renderUnitStatBreakdown(reward.unit, false)}
       </div>
     </button>
