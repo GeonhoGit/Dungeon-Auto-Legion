@@ -25,7 +25,7 @@ function renderShopRoom() {
       return `
         <button class="choice-card unit-tooltip-container ${gradeClass} ${canAfford ? "" : "cannot-afford"}" onclick="buyShopUnit(${index})" style="text-align:left; position:relative;" ${canAfford ? "" : "disabled"} data-type-key="${unit.typeKey}">
           <strong>${keyHint}${unit.name} ${stars(unit.grade)}</strong>
-          <span>HP ${stats.maxHp} / 공격력 ${stats.atk}</span>
+          <span style="font-size: 0.85em; color: var(--muted); line-height: 1.4; margin-top: 2px;">스킬: ${ability.skill.name}<br>특성: ${ability.trait.name}</span>
           <em class="price">${unitCost} 골드</em>
           <div class="unit-tooltip">
             <strong>스킬: ${ability.skill.name}</strong>

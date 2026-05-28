@@ -379,7 +379,7 @@ function rewardCard(reward, index) {
     <button class="choice-card unit-tooltip-container ${gradeClass}" onclick="claimReward(${index})" style="text-align:left; position:relative;" data-type-key="${reward.unit.typeKey}">
       ${bossTag}
       <strong>${keyHint}${reward.unit.name} ${stars(reward.unit.grade)}</strong>
-      <span>HP ${stats.maxHp} / 공격력 ${stats.atk} / 방어력 ${stats.defense} / 속도 ${formatAttackSpeedValue(stats.attackSpeed ?? stats.speed)}</span>
+      <span style="font-size: 0.85em; color: var(--muted); line-height: 1.4; margin-top: 2px;">스킬: ${ability.skill.name}<br>특성: ${ability.trait.name}</span>
       <div class="unit-tooltip">
         <strong>스킬: ${ability.skill.name}</strong>
         <p>${ability.skill.description}</p>
