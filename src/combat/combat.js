@@ -48,12 +48,16 @@ function renderBattle() {
 
       spellsHtml = `
       <div class="commander-spell-bar">
-          <button class="commander-spell-btn" onclick="castCommanderSpell('heal')" ${healSpell.current > 0 ? "disabled" : ""} title="신성한 강림 (쿨타임 15초)\n모든 생존 아군의 상태 이상을 해제하고 최대 체력의 15%를 즉시 회복합니다.">
+          <button class="commander-spell-btn" onclick="toggleAutoCast()" style="width: 50px; border-color: ${gameState.autoCastSpells ? 'var(--green)' : 'var(--line)'};" title="사령관 주문 자동 사용 설정">
+              <span style="color: ${gameState.autoCastSpells ? 'var(--green)' : 'var(--muted)'}; font-size: 11px;">AUTO</span>
+              <span style="font-size: 14px; font-weight: bold; color: ${gameState.autoCastSpells ? '#fff' : 'var(--muted)'}; margin-top: 2px;">${gameState.autoCastSpells ? 'ON' : 'OFF'}</span>
+          </button>
+          <button id="spellBtnHeal" class="commander-spell-btn" onclick="castCommanderSpell('heal')" ${healSpell.current > 0 ? "disabled" : ""} title="신성한 강림 (쿨타임 15초)\n모든 생존 아군의 상태 이상을 해제하고 최대 체력의 15%를 즉시 회복합니다.">
               <span class="spell-icon">✨</span>
               <span class="spell-name">신성한 강림</span>
               <div class="spell-cooldown-overlay" style="height: ${healCooldownRatio * 100}%;"></div>
           </button>
-          <button class="commander-spell-btn" onclick="castCommanderSpell('strike')" ${strikeSpell.current > 0 ? "disabled" : ""} title="벼락 (쿨타임 15초)\n가장 체력이 높은 적에게 (스테이지 x 100 + 100)의 피해를 입히고 2초간 기절시킵니다.">
+          <button id="spellBtnStrike" class="commander-spell-btn" onclick="castCommanderSpell('strike')" ${strikeSpell.current > 0 ? "disabled" : ""} title="벼락 (쿨타임 15초)\n가장 체력이 높은 적에게 (스테이지 x 100 + 100)의 피해를 입히고 2초간 기절시킵니다.">
               <span class="spell-icon">⚡</span>
               <span class="spell-name">벼락</span>
               <div class="spell-cooldown-overlay" style="height: ${strikeCooldownRatio * 100}%;"></div>
@@ -468,30 +472,33 @@ function battleTick(deltaTime) {
 
     if (!boss.isPhase2 && boss.currentHp <= boss.maxHp * 0.5) {
       boss.isPhase2 = true;
-      addBattleLog(`[경고] ${boss.name}의 체력이 50% 이하로 떨어져 2페이즈에 돌입합니다!`);
+      
+      boss.attack = Math.floor(boss.attack * 1.3);
+      boss.atk = boss.attack;
+      boss.defense = Math.floor(boss.defense * 1.3);
+      boss.baseDefense = boss.defense;
+      boss.attackSpeed = Number((boss.attackSpeed * 1.2).toFixed(2));
+      boss.baseAttackSpeed = boss.attackSpeed;
+      boss.speed = boss.attackSpeed;
+      boss.attackCooldown = Math.min(boss.attackCooldown || 0, getAttackIntervalMsFromSpeed(boss.speed));
+
+      addBattleLog(`[경고] ${boss.name}의 체력이 50% 이하로 떨어져 2페이즈에 돌입합니다! 공격력/방어력/공격속도 증가!`);
       playSkillAnimation(boss, "awakened-flash");
-      
-      const aoeMult = gameConfig.combat?.bossPhase2AoEMultiplier ?? 1.5;
-      const aoeDamage = Math.floor(boss.attack * aoeMult);
-      addBattleLog(`[스킬] 보스의 분노! 아군 전체에게 ${aoeDamage} 광역 피해!`);
-      
-      gameState.battleUnits.filter(u => u.currentHp > 0).forEach(u => {
-        u.currentHp -= aoeDamage;
-        showDamagePopup(u.id, aoeDamage, "ally");
-        const targetElement = document.getElementById(`combat-ally-${u.id}`);
-        if (targetElement) applyTemporaryClass(targetElement, "hit-shake", 400);
-        if (u.currentHp <= 0) {
-          u.isDead = true;
-          markUnitDead(u.id, "ally");
-          addBattleLog(`[상태이상] ${formatUnitName(u)}이(가) 쓰러졌습니다.`);
-        }
-        syncTargetHpIfPlayerUnit(u);
-      });
     }
   }
 
   let didAttack = false;
   updateAbilityStates(deltaTime);
+
+  if (gameState.autoCastSpells && gameState.isBattleActive) {
+    if (gameState.commanderSpells.heal.current <= 0) {
+      const needsHeal = gameState.battleUnits.some(u => u.currentHp > 0 && (u.currentHp / u.maxHp) <= 0.6);
+      if (needsHeal) window.castCommanderSpell('heal');
+    }
+    if (gameState.commanderSpells.strike.current <= 0) {
+      if (getAliveEnemies().length > 0) window.castCommanderSpell('strike');
+    }
+  }
 
   // 틱(Tick)마다 반복되는 필터링 연산을 최소화하기 위해 생존 유닛을 캐싱
   const aliveAllies = gameState.battleUnits.filter((unit) => unit.currentHp > 0);
@@ -544,10 +551,6 @@ function battleTick(deltaTime) {
   // 공격 모션은 기존 DOM 위에 1회성으로 적용한다.
   updateBattleUiAfterAttacks();
   flushCombatEffectsToDom();
-}
-
-function getAttackInterval(unit) {
-  return getAttackIntervalMs(unit);
 }
 
 function getAttackIntervalMs(unit) {
@@ -733,6 +736,7 @@ function applyAbilityBeforeDamage(contextOrAttacker, target, rawDamage) {
   }
 
   if (attacker.typeKey === "rogue" && !context.isExtraAttack && !context.isAbilityDamage) {
+    const awakened = isAwakened(attacker);
     if (!attacker.hasUsedAmbush) {
       attacker.hasUsedAmbush = true;
       context.damageMultiplier *= Number(settings.rogue?.ambushCritMultiplier ?? 2.5);
@@ -741,11 +745,11 @@ function applyAbilityBeforeDamage(contextOrAttacker, target, rawDamage) {
         context.target.stunDuration = Math.max(context.target.stunDuration || 0, 1500);
       playSkillAnimation(attacker, "skill-flash");
         context.logs.push(`[치명타] ${formatUnitName(attacker)}의 급습 발동! 적이 1.5초간 기절합니다.`);
-    } else if (!context.skipRogueShadowBlade && Math.random() < Number(settings.rogue?.shadowBladeChance ?? 0.2)) {
-      context.damageMultiplier *= Number(settings.rogue?.shadowBladeCritMultiplier ?? 1.8);
+    } else if (!context.skipRogueShadowBlade && Math.random() < (awakened ? 0.35 : Number(settings.rogue?.shadowBladeChance ?? 0.2))) {
+      context.damageMultiplier *= (awakened ? 2.2 : Number(settings.rogue?.shadowBladeCritMultiplier ?? 1.8));
       context.isCrit = true;
-      playSkillAnimation(attacker, "skill-flash");
-      context.logs.push(`[스킬] ${formatUnitName(attacker)}의 그림자 칼날 발동! 치명타 피해!`);
+      playSkillAnimation(attacker, awakened ? "awakened-flash" : "skill-flash");
+      context.logs.push(`[스킬] ${formatUnitName(attacker)}의 ${awakened ? "그림자 습격" : "그림자 칼날"} 발동! 치명타 피해!`);
     }
   }
 
@@ -822,12 +826,14 @@ function applyEnemyAbilityAfterDamage(context) {
     }
   }
   if (attacker.typeKey === "spider" && target.currentHp > 0) {
-    applyAttackSpeedDebuff(target, (eCfg.spider?.poisonAsDebuffPercent ?? 5), 999999);
-    const poisonDps = Math.max(1, Math.floor(attacker.attack * 0.2));
-    target.dots = target.dots || [];
-    target.dots.push({ type: 'poison', dps: poisonDps, duration: 3000, tickAccumulator: 0 });
-    playSkillAnimation(attacker, "skill-flash");
-    addBattleLog(`[스킬] ${attacker.name}의 독니! ${target.name}이 중독되고 공격 속도가 감소합니다.`);
+    if (Math.random() < (eCfg.spider?.poisonChance ?? 0.3)) {
+      applyAttackSpeedDebuff(target, (eCfg.spider?.poisonAsDebuffPercent ?? 5), 999999);
+      const poisonDps = Math.max(1, Math.floor(attacker.attack * 0.2));
+      target.dots = target.dots || [];
+      target.dots.push({ type: 'poison', dps: poisonDps, duration: 3000, tickAccumulator: 0 });
+      playSkillAnimation(attacker, "skill-flash");
+      addBattleLog(`[스킬] ${attacker.name}의 독니! ${target.name}이 중독되고 공격 속도가 감소합니다.`);
+    }
   }
   if (attacker.typeKey === "minotaur") {
     attacker.minotaurAttackCount = (attacker.minotaurAttackCount || 0) + 1;
@@ -956,18 +962,22 @@ function applyAbilityAfterDamage(contextOrAttacker, target, finalDamage) {
     }
   }
 
-  if (attacker.typeKey === "archer" && !context.isExtraAttack && context.target.currentHp > 0 && Math.random() < Number(settings.archer?.doubleShotChance ?? 0.25)) {
-    addBattleLog(`[스킬] ${formatUnitName(attacker)}의 연속 사격 발동!`);
-    playSkillAnimation(attacker, "skill-flash");
-    processAttack(attacker, context.target, {
-      damageMultiplier: Number(settings.archer?.doubleShotDamageMultiplier ?? 0.6),
-      isExtraAttack: true
-    });
-    if (context.target.currentHp > 0) {
-      const bleedDps = Math.max(1, Math.floor(context.target.currentHp * 0.05));
-      context.target.dots = context.target.dots || [];
-      context.target.dots.push({ type: 'bleed', dps: bleedDps, duration: 3000, tickAccumulator: 0 });
-      addBattleLog(`[디버프] ${formatUnitName(context.target)}에게 출혈 효과가 적용되었습니다!`);
+  if (attacker.typeKey === "archer" && !context.isExtraAttack && context.target.currentHp > 0) {
+    const awakened = isAwakened(attacker);
+    const chance = awakened ? 0.40 : Number(settings.archer?.doubleShotChance ?? 0.25);
+    if (Math.random() < chance) {
+      addBattleLog(`[스킬] ${formatUnitName(attacker)}의 ${awakened ? "폭풍 사격" : "연속 사격"} 발동!`);
+      playSkillAnimation(attacker, awakened ? "awakened-flash" : "skill-flash");
+      processAttack(attacker, context.target, {
+        damageMultiplier: awakened ? 0.80 : Number(settings.archer?.doubleShotDamageMultiplier ?? 0.6),
+        isExtraAttack: true
+      });
+      if (context.target.currentHp > 0) {
+        const bleedDps = Math.max(1, Math.floor(context.target.currentHp * 0.05));
+        context.target.dots = context.target.dots || [];
+        context.target.dots.push({ type: 'bleed', dps: bleedDps, duration: 3000, tickAccumulator: 0 });
+        addBattleLog(`[디버프] ${formatUnitName(context.target)}에게 출혈 효과가 적용되었습니다!`);
+      }
     }
   }
 
@@ -1090,15 +1100,16 @@ function applyHealerSkill(healer) {
   if (!target) return;
   
   const settings = gameConfig.abilitySettings?.healer || {};
-  const atkMultiplier = Number(settings.healingLightHealMultiplier ?? 1.5);
-  const hpMultiplier = Number(settings.healingLightMaxHpMultiplier ?? 0.05);
+  const awakened = isAwakened(healer);
+  const atkMultiplier = awakened ? 2.5 : Number(settings.healingLightHealMultiplier ?? 1.5);
+  const hpMultiplier = awakened ? 0.1 : Number(settings.healingLightMaxHpMultiplier ?? 0.05);
   
   const atkHeal = Math.floor(getUnitAttack(healer) * atkMultiplier);
   const hpHeal = Math.floor(target.maxHp * hpMultiplier);
   const baseHeal = atkHeal + hpHeal;
   const finalHeal = Math.floor(baseHeal * (1 + getBattleHealingBonus()));
   
-  playSkillAnimation(healer, "heal-flash");
+  playSkillAnimation(healer, awakened ? "awakened-flash" : "heal-flash");
   healBattleUnit(target, Math.max(1, finalHeal), healer);
 }
 
@@ -1471,6 +1482,9 @@ function syncBattleHpToOwnedUnits() {
     if (unit) {
       const extraHp = battleUnit.extraHpFromBuffs || 0;
       unit.currentHp = Math.max(0, Math.min(unit.maxHp, battleUnit.currentHp - extraHp));
+      if (battleUnit.typeKey === "witch" && battleUnit.witchAbsorbedStats) {
+        unit.witchAbsorbedStats = battleUnit.witchAbsorbedStats;
+      }
     }
   });
 }
@@ -1586,12 +1600,15 @@ function updateBattleUiAfterAttacks() {
   if (gameState.commanderSpells) {
       const healSpell = gameState.commanderSpells.heal;
       const strikeSpell = gameState.commanderSpells.strike;
-      const btns = document.querySelectorAll(".commander-spell-btn");
-      if (btns.length >= 2) {
-          btns[0].disabled = healSpell.current > 0 || !gameState.isBattleActive;
-          btns[0].querySelector(".spell-cooldown-overlay").style.height = `${(healSpell.current / healSpell.cooldown) * 100}%`;
-          btns[1].disabled = strikeSpell.current > 0 || !gameState.isBattleActive;
-          btns[1].querySelector(".spell-cooldown-overlay").style.height = `${(strikeSpell.current / strikeSpell.cooldown) * 100}%`;
+      const healBtn = document.getElementById("spellBtnHeal");
+      const strikeBtn = document.getElementById("spellBtnStrike");
+      if (healBtn) {
+          healBtn.disabled = healSpell.current > 0 || !gameState.isBattleActive;
+          healBtn.querySelector(".spell-cooldown-overlay").style.height = `${(healSpell.current / healSpell.cooldown) * 100}%`;
+      }
+      if (strikeBtn) {
+          strikeBtn.disabled = strikeSpell.current > 0 || !gameState.isBattleActive;
+          strikeBtn.querySelector(".spell-cooldown-overlay").style.height = `${(strikeSpell.current / strikeSpell.cooldown) * 100}%`;
       }
   }
   gameState.battleUnits.forEach((unit) => updateCombatCardDom(unit, "ally"));
@@ -1780,6 +1797,12 @@ window.castCommanderSpell = function(type) {
       if (target.currentHp <= 0) { target.isDead = true; markUnitDead(target.id, "enemy"); addBattleLog(`${target.name} 처치됨!`); }
   }
   updateBattleUiAfterAttacks();
+};
+
+window.toggleAutoCast = function() {
+  gameState.autoCastSpells = !gameState.autoCastSpells;
+  if (typeof saveMetaProgress === "function") saveMetaProgress();
+  render();
 };
 
 window.openBattleStatsModal = function() {

@@ -47,7 +47,8 @@ function saveGameProgress(isAutoSave = false) {
     lastClearedRoomType: gameState.lastClearedRoomType,
     currentRoomType: gameState.currentRoomType,
     currentEvent: gameState.currentEvent,
-    eventResolved: gameState.eventResolved
+    eventResolved: gameState.eventResolved,
+    autoCastSpells: gameState.autoCastSpells
   };
   localStorage.setItem("dal_save_data", JSON.stringify(saveData));
   if (typeof updateHallOfFame === "function") updateHallOfFame();
@@ -66,6 +67,7 @@ function saveMetaProgress() {
     saveData.gems = gameState.gems || 0;
     saveData.shopUpgradeLevel = gameState.shopUpgradeLevel || 0;
     saveData.upgradeLevels = gameState.upgradeLevels || { fieldLimit: 0, heroBlessing: 0, commanderAura: 0, goldBonus: 0, recombChance: 0, critDamage: 0, critChance: 0 };
+    saveData.autoCastSpells = gameState.autoCastSpells || false;
     localStorage.setItem("dal_save_data", JSON.stringify(saveData));
   } catch (e) {
   }

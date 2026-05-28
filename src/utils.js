@@ -98,7 +98,9 @@ const gameState = {
   },
   activeSynergies: [],
   synergyBonuses: { attack: 0, hp: 0, defense: 0, defenseFlat: 0, attackSpeed: 0, damageReduction: 0, healBonus: 0, critChance: 0, critDamage: 0, lifesteal: 0 },
-  reviveCount: 0
+  reviveCount: 0,
+  isBgmOn: true,
+  autoCastSpells: false
 };
 
 const app = document.getElementById("app");
@@ -207,7 +209,7 @@ function calculateUnitFinalStats(unit, battleMode = false) {
   const defensePercentBonus = battleMode ? (Number(gameState.bonuses.defense || 0) + Number(gameState.synergyBonuses?.defense || 0)) : 0;
   const defenseFlatBonus = battleMode ? (Number(gameState.bonuses.defenseFlat || 0) + Number(gameState.synergyBonuses?.defenseFlat || 0)) : 0;
   
-  const witchAbsorbed = (battleMode && normalized.witchAbsorbedStats) ? normalized.witchAbsorbedStats : 0;
+  const witchAbsorbed = normalized.witchAbsorbedStats ? normalized.witchAbsorbedStats : 0;
   const baseMaxHp = getUnitMaxHp(normalized) + witchAbsorbed;
   const baseAttack = Number(normalized.baseAttack ?? normalized.attack) + witchAbsorbed;
   
@@ -351,7 +353,6 @@ function initializeBattleAbilityState(unit) {
   }
   if (unit.typeKey === "witch") {
     unit.witchAttackCount = 0;
-    unit.witchAbsorbedStats = 0;
   }
 
   // 몬스터 상태 초기화
@@ -644,33 +645,7 @@ function createRandomUnitByStage(stage) {
 
 function getShopUnitGradeChances(stage) {
   const baseChances = getStageGradeChances(stage);
-  const level = gameState.shopUpgradeLevel || 0;
-  if (level === 0) return baseChances;
-
-  const chances = { ...baseChances };
-  
-  for (let i = 0; i < level; i++) {
-    let shift = 2; // 1레벨당 2%씩 저등급 확률을 고등급으로 이전
-    if (chances[1] >= shift) {
-      chances[1] -= shift;
-    } else {
-      let remain = shift - chances[1];
-      chances[1] = 0;
-      if (chances[2] >= remain) {
-        chances[2] -= remain;
-      } else {
-        remain -= chances[2];
-        chances[2] = 0;
-        shift -= remain;
-      }
-    }
-    chances[3] += shift * 0.6;
-    chances[4] += shift * 0.3;
-    chances[5] += shift * 0.1;
-  }
-  
-  Object.keys(chances).forEach(k => chances[k] = Math.round(chances[k] * 10) / 10);
-  return chances;
+  return applyShopUpgradeShift(baseChances);
 }
 
 function generateShopRandomUnit() {
@@ -692,6 +667,41 @@ function formatItemTierChances(stage, type) {
   return [1, 2, 3, 4, 5].map((tier) => `${tier}티어: ${Number(chances[tier] || 0)}%`).join(" / ");
 }
 
+function getShopItemTierChances(stage) {
+  const baseChances = getItemTierChances(stage, "shop");
+  return applyShopUpgradeShift(baseChances);
+}
+
+function applyShopUpgradeShift(baseChances) {
+  const level = gameState.shopUpgradeLevel || 0;
+  if (level === 0) return baseChances;
+
+  const chances = { ...baseChances };
+  
+  for (let i = 0; i < level; i++) {
+    let shift = 2; // 1레벨당 2%씩 저티어 확률을 고티어로 이전
+    if (chances[1] >= shift) {
+      chances[1] -= shift;
+    } else {
+      let remain = shift - chances[1];
+      chances[1] = 0;
+      if (chances[2] >= remain) {
+        chances[2] -= remain;
+      } else {
+        remain -= chances[2];
+        chances[2] = 0;
+        shift -= remain;
+      }
+    }
+    chances[3] = (chances[3] || 0) + shift * 0.6;
+    chances[4] = (chances[4] || 0) + shift * 0.3;
+    chances[5] = (chances[5] || 0) + shift * 0.1;
+  }
+  
+  Object.keys(chances).forEach(k => chances[k] = Math.round(chances[k] * 10) / 10);
+  return chances;
+}
+
 function generateShopRandomItem() {
   // 1% 확률로 직업 문장(Emblem) 특별 등장
   if (Math.random() < 0.01) {
@@ -701,7 +711,7 @@ function generateShopRandomItem() {
     }
   }
 
-  const chances = getItemTierChances(gameState.currentStage, "shop");
+  const chances = getShopItemTierChances(gameState.currentStage);
   const selectedTier = rollWeightedRandomChance(chances);
   const candidates = itemData.filter(item => (item.tier || 1) === selectedTier);
   return candidates.length > 0 ? { ...randomFrom(candidates) } : { ...randomFrom(itemData) };

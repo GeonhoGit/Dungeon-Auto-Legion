@@ -119,19 +119,11 @@ function renderStart() {
           <button onclick="openHelpModal()" style="padding: 12px 24px; font-size: 16px; width: 240px; background: rgba(255,255,255,0.05); border-color: var(--line); color: var(--text);">도움말</button>
           ${hasAnyData ? `<button onclick="confirmHardReset()" style="padding: 12px 24px; font-size: 16px; width: 240px; background: rgba(212, 107, 104, 0.1); border-color: var(--red); color: var(--red);">데이터 전체 초기화</button>` : ""}
         </div>
-        <!-- 시작 화면 애드센스 광고 영역 -->
-        <div class="ad-container" style="margin-top: 32px; min-height: 100px; text-align: center;">
-          <ins class="adsbygoogle"
-               style="display:inline-block;width:320px;height:100px"
-               data-ad-client="ca-pub-YOUR_CLIENT_ID"
-               data-ad-slot="YOUR_SLOT_ID"></ins>
-        </div>
       </div>
     </section>
     ${gameState.isHelpModalOpen ? renderHelpModal() : ""}
     ${gameState.isHallOfFameModalOpen ? renderHallOfFameModal() : ""}
   `;
-  try { (window.adsbygoogle = window.adsbygoogle || []).push({}); } catch (e) {}
 }
 
 function openHallOfFameModal() {
@@ -375,6 +367,7 @@ function startGame() {
     if (saved) {
       const parsed = JSON.parse(saved);
       if (gameState.screen === "start") {
+        if (typeof parsed.autoCastSpells === "boolean") gameState.autoCastSpells = parsed.autoCastSpells;
         if (typeof parsed.gems === "number") keepGems = parsed.gems;
         if (typeof parsed.shopUpgradeLevel === "number") keepShopUpgradeLevel = parsed.shopUpgradeLevel;
         if (parsed.upgradeLevels) keepUpgradeLevels = parsed.upgradeLevels;
@@ -454,6 +447,7 @@ function startGame() {
   };
   gameState.activeSynergies = [];
   gameState.synergyBonuses = { attack: 0, hp: 0, defense: 0, defenseFlat: 0, attackSpeed: 0, damageReduction: 0, healBonus: 0, critChance: 0, critDamage: 0, lifesteal: 0 };
+  let keepAutoCast = gameState.autoCastSpells || false;
 
   // 영구 강화 스탯 재적용
   if (typeof applyAllPermanentUpgrades === "function") {
@@ -465,7 +459,8 @@ function startGame() {
     const metaOnlySave = {
       gems: keepGems,
       shopUpgradeLevel: keepShopUpgradeLevel,
-      upgradeLevels: keepUpgradeLevels
+      upgradeLevels: keepUpgradeLevels,
+      autoCastSpells: keepAutoCast
     };
     localStorage.setItem("dal_save_data", JSON.stringify(metaOnlySave));
   } catch(e) {}
@@ -481,6 +476,7 @@ function startGame() {
   }
   gameState.dungeonMap = generateDungeonMap(gameState.currentMapNodeCount);
   gameState.availableNodeIds = getFirstLayerNodeIds();
+  gameState.autoCastSpells = keepAutoCast;
 
   gameState.logs = ["랜덤 시작 유닛 5마리를 지급했습니다. 유닛 카드를 클릭해 필드에 배치하세요."];
   setMessage("랜덤 시작 유닛 5마리를 지급했습니다.");

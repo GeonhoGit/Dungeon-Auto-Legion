@@ -99,7 +99,7 @@ function closeProbabilityModal() {
 function renderProbabilityModal() {
   const stage = gameState.currentStage;
   const unitChances = getStageGradeChances(stage);
-  const itemChances = getItemTierChances(stage, "shop");
+  const itemChances = typeof getShopItemTierChances === "function" ? getShopItemTierChances(stage) : getItemTierChances(stage, "shop");
   const bossItemChances = getItemTierChances(stage, "boss");
   const normalItemChances = getItemTierChances(stage, "normal");
 
@@ -301,7 +301,7 @@ function renderProbabilityPanel() {
 
   if (gameState.screen === "shop") {
     unitChances = typeof getShopUnitGradeChances === "function" ? getShopUnitGradeChances(stage) : unitChances;
-    itemChances = getItemTierChances(stage, "shop");
+    itemChances = typeof getShopItemTierChances === "function" ? getShopItemTierChances(stage) : getItemTierChances(stage, "shop");
     itemLabel = "장비 구매 (상점)";
   } else if (gameState.screen === "reward") {
     if (gameState.pendingRewardType === "boss") {

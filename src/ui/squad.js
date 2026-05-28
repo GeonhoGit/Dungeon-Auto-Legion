@@ -29,10 +29,6 @@ function getBenchUnits() {
   return gameState.ownedUnits.filter((unit) => !fieldUnitIds.has(unit.id) && (unit.currentHp ?? unit.maxHp) > 0);
 }
 
-function getUnitCategoryIcon(typeKey) {
-  return "";
-}
-
 function groupUnitsByJob(units) {
   const usedIds = new Set();
   const groups = unitTypes.map((type) => {
@@ -41,7 +37,6 @@ function groupUnitsByJob(units) {
     return {
       key: type.key,
       title: type.name,
-      icon: getUnitCategoryIcon(type.key),
       units: matchedUnits
     };
     });
@@ -51,7 +46,6 @@ function groupUnitsByJob(units) {
     groups.push({
       key: "unknown",
       title: "기타",
-      icon: "",
       units: unknownUnits
     });
   }
@@ -71,7 +65,7 @@ function renderOwnedUnitCategories(units) {
           <section class="owned-category owned-category-${group.key}">
             <div class="owned-category-header">
               <div>
-                <h4><span>${group.icon}</span> ${group.title}</h4>
+                <h4>${group.title}</h4>
                 <p class="hint">카드 크기는 유지하고 3장씩 슬라이드로 확인합니다.</p>
               </div>
               <div class="owned-category-tools">

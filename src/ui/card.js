@@ -93,11 +93,11 @@ function calculateUnitStatBreakdown(unit, battleMode = false) {
     if (abilityAtk > 0) attackBonuses.push({ name: `[특성] 고유 효과`, value: abilityAtk, valueType: "attack" });
     const abilityDef = getBattleAbilityDefenseBonus(normalized);
     if (abilityDef > 0) defenseBonuses.push({ name: `[특성] 고유 효과`, value: abilityDef, valueType: "defense" });
-    
-    if (normalized.witchAbsorbedStats > 0) {
-      attackBonuses.push({ name: `[특성] 영혼 착취`, value: normalized.witchAbsorbedStats, valueType: "attackFlat", isFlat: true });
-      hpBonuses.push({ name: `[특성] 영혼 착취`, value: normalized.witchAbsorbedStats, valueType: "hpFlat", isFlat: true });
-    }
+  }
+
+  if (normalized.witchAbsorbedStats > 0) {
+    attackBonuses.push({ name: `[특성] 영혼 착취`, value: normalized.witchAbsorbedStats, valueType: "attackFlat", isFlat: true });
+    hpBonuses.push({ name: `[특성] 영혼 착취`, value: normalized.witchAbsorbedStats, valueType: "hpFlat", isFlat: true });
   }
 
   return {

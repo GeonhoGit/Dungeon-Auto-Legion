@@ -18,8 +18,7 @@ function renderRestRoom() {
   const units = getAlivePlayerUnits();
   const options = [
     { type: "heal", key: "allHeal", name: "전열 정비", effect: "모든 생존 유닛의 잃은 체력 40% 회복", description: "전투 피해를 넓게 복구합니다.", hotkey: 1 },
-    { type: "heal", key: "singleHeal", name: "집중 치료", effect: "가장 체력이 낮은 유닛 잃은 체력 80% 회복", description: "위험한 유닛 하나를 크게 회복합니다.", hotkey: 2 },
-    { type: "train", key: "maxHp", name: "생명의 축복", effect: "모든 생존 유닛 최대 체력 +5%", description: "장기 생존력을 높입니다.", hotkey: 3 }
+    { type: "heal", key: "singleHeal", name: "집중 치료", effect: "가장 체력이 낮은 유닛 잃은 체력 80% 회복", description: "위험한 유닛 하나를 크게 회복합니다.", hotkey: 2 }
   ];
   const groups = groupRestOptionsByType(options);
   screen.innerHTML = `
@@ -95,7 +94,6 @@ function takeRestReward(type) {
         setMessage("회복할 생존 유닛이 없습니다.");
       }
     }
-    if (type === "maxHp") increaseAllAliveMaxHp(0.05);
     clearRoom("rest");
   }, 250);
 }

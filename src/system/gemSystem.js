@@ -22,9 +22,14 @@ function upgradeShopProbability() {
     generateShopRandomUnit(),
     generateShopRandomUnit()
   ];
+  gameState.shopItems = [
+    generateShopRandomItem(),
+    generateShopRandomItem(),
+    generateShopRandomItem()
+  ];
   
   addLog(`상점 확률 영구 강화! (Lv.${gameState.shopUpgradeLevel})`);
-  setMessage(`상점 용병 등장 확률이 영구적으로 강화되었습니다!`);
+  setMessage(`상점 용병 및 장비 등장 확률이 영구적으로 강화되었습니다!`);
   if (typeof saveMetaProgress === "function") saveMetaProgress();
   render();
 }
@@ -151,10 +156,10 @@ function renderUpgradeModal() {
         
         <div class="choice-section" style="margin-top: 0; padding-top: 0; border: none;">
           <div class="shop-grid">
-            ${renderOpt("상점 확률 강화", "고등급 용병 등장 확률을 영구적으로 2% 증가시킵니다.", 3, shopLvl, 10, "upgradeShopProbability()")}
             ${renderOpt("부대 한계 돌파", "최대 필드 배치 한도(상한선)를 1칸 늘립니다.", 5, fieldLvl, 5, "buyPermanentUpgrade('fieldLimit')")}
-            ${renderOpt("영웅의 축복", "모든 유닛의 공격력과 최대 체력이 2% 증가합니다.", 2, heroLvl, 10, "buyPermanentUpgrade('heroBlessing')")}
+            ${renderOpt("상점 확률 강화", "고등급 용병 및 장비 등장 확률을 영구적으로 2% 증가시킵니다.", 3, shopLvl, 10, "upgradeShopProbability()")}
             ${renderOpt("전장의 지휘관", "모든 유닛의 방어력이 5%, 피해 감소가 2% 증가합니다.", 3, cmdLvl, 5, "buyPermanentUpgrade('commanderAura')")}
+            ${renderOpt("영웅의 축복", "모든 유닛의 공격력과 최대 체력이 2% 증가합니다.", 2, heroLvl, 10, "buyPermanentUpgrade('heroBlessing')")}
             ${renderOpt("재물 획득", "전투 승리 시 획득하는 골드가 5% 증가합니다.", 2, goldLvl, 10, "buyPermanentUpgrade('goldBonus')")}
             ${renderOpt("재조합 명인", "재조합 시 상위 등급이 등장할 대성공 확률이 1% 증가합니다.", 2, recombLvl, 10, "buyPermanentUpgrade('recombChance')")}
             ${renderOpt("치명적인 일격", "모든 유닛의 치명타 피해가 1% 증가합니다.", 1, critLvl, 10, "buyPermanentUpgrade('critDamage')")}

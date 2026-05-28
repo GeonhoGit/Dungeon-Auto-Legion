@@ -47,7 +47,7 @@ function renderEnd(title, body) {
       <div class="ad-container" style="margin: 24px 0; min-height: 100px; text-align: center;">
         <ins class="adsbygoogle"
              style="display:inline-block;width:320px;height:100px"
-             data-ad-client="ca-pub-YOUR_CLIENT_ID"
+             data-ad-client="ca-pub-5196833558159966"
              data-ad-slot="YOUR_SLOT_ID"></ins>
       </div>
       <div class="actions">

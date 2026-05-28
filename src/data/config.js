@@ -105,7 +105,8 @@ const defaultGameConfig = {
     rogue: { shadowBladeChance: 0.2, shadowBladeCritMultiplier: 1.8, ambushCritMultiplier: 2.5 },
     healer: { healingLightAttackCount: 2, healingLightHealMultiplier: 1.5, healingLightMaxHpMultiplier: 0.05, lifeTouchHealingBonus: 0.1 },
     necromancer: { summonAttackCount: 4, summonMaxCount: 2, skeletonHpMultiplier: 0.8, skeletonAtkMultiplier: 0.5, skeletonDefMultiplier: 0.2, corpseExplosionDamageMultiplier: 2.0, corpseExplosionTargets: 2 },
-    bard: { heroicEpicAttackCount: 3, heroicEpicAtkBonus: 0.5, heroicEpicDuration: 3000, songOfEnthusiasmAsBonus: 10, songOfEnthusiasmCritBonus: 0.1 }
+    bard: { heroicEpicAttackCount: 3, heroicEpicAtkBonus: 0.5, heroicEpicDuration: 3000, songOfEnthusiasmAsBonus: 10, songOfEnthusiasmCritBonus: 0.1 },
+    witch: { potionAttackCount: 2, maxHpDecreasePercent: 0.005 }
   },
   enemyAbilitySettings: {
     skeleton: { shieldChance: 0.15, asDebuffChance: 0.1, asDebuffPercent: 30, asDebuffDuration: 2000 },
@@ -117,7 +118,7 @@ const defaultGameConfig = {
     minotaur: { shockwaveAttackCount: 3, shockwaveAsDebuffPercent: 35, shockwaveDuration: 1200, hpBonus: 1.3, defBonus: 1.4 },
     lich: { summonInterval: 10000, summonHpMultiplier: 0.35, summonAtkMultiplier: 0.5 },
     corrupt_knight: { darkBladeChance: 0.2, darkBladeMultiplier: 2.0, reflectChance: 0.2, reflectPercent: 0.2 },
-    spider: { poisonAsDebuffPercent: 5, startWebAsDebuffPercent: 25, startWebDuration: 3000 },
+    spider: { poisonChance: 0.3, poisonAsDebuffPercent: 5, startWebAsDebuffPercent: 25, startWebDuration: 3000 },
     mummy: { healDebuffChance: 0.25, healDebuffPercent: 50, healDebuffDuration: 3000 }
   },
   unitGradeChancesByStage: {
