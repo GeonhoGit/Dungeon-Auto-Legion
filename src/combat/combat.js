@@ -1588,13 +1588,11 @@ function flushCombatEffectsToDom() {
 function updateBattleUiAfterAttacks() {
   renderBattleLogs();
 
-  const allyCountElement = document.querySelector(".battle-status .pill:nth-child(1)");
-  const enemyCountElement = document.querySelector(".battle-status .pill:nth-child(2)");
-  if (allyCountElement) {
-    allyCountElement.textContent = `아군 ${gameState.battleUnits.filter((unit) => unit.currentHp > 0).length}`;
-  }
-  if (enemyCountElement) {
-    enemyCountElement.textContent = `적 ${getAliveEnemies().length}`;
+  // 배속 버튼 등 UI 요소가 추가되어도 안전하게 작동하도록 클래스 배열 기반 갱신으로 리팩토링
+  const pills = document.querySelectorAll(".battle-status .pill");
+  if (pills.length >= 2) {
+    pills[0].textContent = `아군 ${gameState.battleUnits.filter((unit) => unit.currentHp > 0).length}`;
+    pills[1].textContent = `적 ${getAliveEnemies().length}`;
   }
 
   if (gameState.commanderSpells) {

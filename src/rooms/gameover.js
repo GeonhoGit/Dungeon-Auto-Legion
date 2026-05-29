@@ -2,11 +2,16 @@
 // 게임 오버 시스템 (gameover/gameover.js)
 // ==========================================
 
+// 부활 비용 계산 로직 분리
+function getReviveCost() {
+  const baseReviveCost = gameConfig.rewards?.reviveCost ?? 50;
+  return baseReviveCost * ((gameState.reviveCount || 0) + 1);
+}
+
 function renderEnd(title, body) {
   const screen = document.getElementById("screen");
   const isGameOver = title === "게임 오버";
-  const baseReviveCost = gameConfig.rewards?.reviveCost ?? 50;
-  const reviveCost = baseReviveCost * ((gameState.reviveCount || 0) + 1);
+  const reviveCost = getReviveCost();
   const canAfford = gameState.gold >= reviveCost;
   const hasUnits = gameState.ownedUnits.length > 0;
   const canRevive = canAfford && hasUnits;
@@ -53,8 +58,7 @@ function renderEnd(title, body) {
 }
 
 function revive() {
-  const baseReviveCost = gameConfig.rewards?.reviveCost ?? 50;
-  const cost = baseReviveCost * ((gameState.reviveCount || 0) + 1);
+  const cost = getReviveCost();
   if (gameState.gold < cost) {
     setMessage("골드가 부족합니다.");
     return;

@@ -215,15 +215,10 @@ button:disabled {
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
 }
 
-.owned-unit-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-}
 
 
 .field-grid {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .card,
@@ -266,14 +261,6 @@ button:disabled {
   padding: 12px;
   border-radius: 8px;
   box-sizing: border-box;
-}
-
-.empty-field-slot {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0.6;
-  border: 1px dashed #777;
 }
 
 .choice-section,
@@ -429,13 +416,6 @@ button:disabled {
   gap: 12px;
 }
 
-.slot.empty {
-  display: grid;
-  place-items: center;
-  color: #86798f;
-  border-style: dashed;
-}
-
 /* ==========================================
    4. 유닛 상태(이름, 체력바, 스탯) 스타일
    ========================================== */
@@ -559,14 +539,10 @@ button:disabled {
 
 
 .message {
-  color: var(--muted);
-  font-size: 14px;
-}
-
-.message {
   min-height: 20px;
   margin-top: 12px;
   color: #f0ce83;
+  font-size: 14px;
 }
 
 .log {
@@ -761,7 +737,7 @@ button:disabled {
 }
 
 .combat-side .unit-card {
-  width: calc(50% - 6px);
+  width: calc((100% - 24px) / 3); /* 전투 필드 유닛 크기를 3열(한 줄에 3개)로 변경 */
 }
 
 .versus {
@@ -794,6 +770,7 @@ button:disabled {
 .unit-card.dead {
   animation: dustFadeOut 0.8s forwards ease-out;
   pointer-events: none;
+  overflow: hidden !important; /* 카드가 작아질 때 내부 글씨가 삐져나오지 않게 숨김 */
 }
 
 .damage-popup {
@@ -941,11 +918,45 @@ button:disabled {
     opacity: 1;
     filter: blur(0px) grayscale(0);
     transform: translateY(0) scale(1);
+    min-height: 190px;
+    width: calc((100% - 24px) / 3); /* 축소 애니메이션 시작 너비도 3열 크기로 변경 */
+    padding: 16px;
+    border-width: 1px;
+    margin: 0;
+  }
+  40% {
+    opacity: 0;
+    filter: blur(4px) grayscale(1);
+    transform: translateY(-20px) scale(0.95);
+    min-height: 190px;
+    width: calc((100% - 24px) / 3); /* 3열 크기 유지 후 0으로 축소 */
+    padding: 16px;
+    border-width: 1px;
+    margin: 0;
+  }
+  99% {
+    opacity: 0;
+    filter: blur(4px) grayscale(1);
+    transform: translateY(-20px) scale(0.5);
+    min-height: 0;
+    height: 0;
+    width: 0;
+    padding: 0;
+    border-width: 0;
+    margin: -6px; /* flexbox 간격(gap) 12px를 완벽히 상쇄 */
   }
   100% {
     opacity: 0;
     filter: blur(4px) grayscale(1);
-    transform: translateY(-20px) scale(0.95);
+    transform: translateY(-20px) scale(0.5);
+    min-height: 0;
+    height: 0;
+    width: 0;
+    padding: 0;
+    border-width: 0;
+    margin: 0;
+    position: absolute; /* 완전히 허공으로 띄워 레이아웃 영역에서 제거 */
+    visibility: hidden;
   }
 }
 
@@ -1191,12 +1202,6 @@ button:disabled {
   }
 }
 
-@media (min-width: 901px) and (max-width: 1180px) {
-  .owned-unit-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
 /* main.optimized.js용 UI 보정 CSS 패치 */
 .topbar.title-only {
   display: flex;
@@ -1336,7 +1341,7 @@ button:disabled {
 
 .field-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
 }
 
@@ -1377,25 +1382,6 @@ button:disabled {
   padding-left: 16px;
 }
 
-@media (max-width: 1100px) {
-  .three-column-layout {
-    grid-template-columns: 1fr;
-  }
-
-  .inventory-panel,
-  .map-panel {
-    position: static;
-    max-height: none;
-  }
-}
-
-@media (max-width: 720px) {
-  .owned-unit-grid,
-  .squad-preview-owned {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
 
 /* 부대 관리 창 확장 / 전투 필드 카운트 제거 적용 패치 */
 .app-shell {
@@ -1404,8 +1390,10 @@ button:disabled {
 }
 
 .three-column-layout {
+  display: grid;
   grid-template-columns: minmax(250px, 17%) minmax(650px, 1fr) minmax(360px, 24%);
   gap: 20px;
+  align-items: start;
 }
 
 .squad-management-panel {
@@ -1419,19 +1407,25 @@ button:disabled {
 
 
 .squad-management-panel .field-grid {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   align-content: start;
 }
 
 @media (max-width: 1180px) {
   .three-column-layout {
     grid-template-columns: 1fr;
+    overflow-y: auto;
+    padding-right: 8px;
   }
 
   .inventory-panel,
+  .main-panel,
   .map-panel {
     position: static;
     max-height: none;
+    height: auto;
+    overflow-y: visible;
+    padding-right: 0;
   }
 
   .squad-management-panel .split,
@@ -1550,12 +1544,6 @@ button:disabled {
   color: #e5a4ff;
 }
 
-/* Owned card job categories */
-.owned-unit-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 14px;
-}
 
 .owned-category-list {
   display: grid;
@@ -1586,7 +1574,7 @@ button:disabled {
 
 .owned-category-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
 }
 
@@ -1669,8 +1657,8 @@ button:disabled {
 }
 
 .owned-slide-card {
-  flex: 0 0 calc((100% - 8px) / 2);
-  min-width: calc((100% - 8px) / 2);
+  flex: 0 0 calc((100% - 16px) / 3);
+  min-width: calc((100% - 16px) / 3);
   scroll-snap-align: start;
 }
 
@@ -1680,7 +1668,7 @@ button:disabled {
 
 /* The old grid class may still exist in cached markup */
 .owned-category-grid {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 @media (max-width: 900px) {
@@ -1700,8 +1688,8 @@ button:disabled {
 
 @media (min-width: 901px) and (max-width: 1180px) {
   .owned-slide-card {
-    flex-basis: calc((100% - 8px) / 2);
-    min-width: calc((100% - 8px) / 2);
+    flex-basis: calc((100% - 16px) / 3);
+    min-width: calc((100% - 16px) / 3);
   }
 }
 
@@ -1943,11 +1931,6 @@ body {
 ::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.02); border-radius: 4px; }
 ::-webkit-scrollbar-thumb { background: rgba(230, 184, 92, 0.3); border-radius: 4px; }
 ::-webkit-scrollbar-thumb:hover { background: rgba(230, 184, 92, 0.6); }
-
-@media (max-width: 1180px) {
-  .three-column-layout { overflow-y: auto; padding-right: 8px; }
-  .inventory-panel, .main-panel, .map-panel { height: auto; overflow-y: visible; padding-right: 0; }
-}
 
 /* 상점 아이콘 회전 애니메이션 */
 @keyframes spinRefresh {

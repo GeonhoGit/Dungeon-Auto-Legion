@@ -13,7 +13,7 @@ function managementLayout() {
     <div class="split">
       <div>
         <h3>보유 카드 목록</h3>
-        <div id="ownedUnits" class="owned-unit-grid"></div>
+        <div id="ownedUnits"></div>
       </div>
       <div>
         <h3>전투 필드 <small style="font-size:0.8em; color:var(--muted); font-weight:normal;">(${aliveFieldCount} / ${gameState.maxFieldUnits})</small></h3>
@@ -60,13 +60,13 @@ function renderOwnedUnitCategories(units) {
   return `
     <div class="owned-category-list">
       ${groupUnitsByJob(units).map((group) => {
-        const canSlide = group.units.length > 2;
+        const canSlide = group.units.length > 3;
         return `
           <section class="owned-category owned-category-${group.key}">
             <div class="owned-category-header">
               <div>
                 <h4>${group.title}</h4>
-                <p class="hint">카드 크기는 유지하고 2장씩 슬라이드로 확인합니다.</p>
+                <p class="hint">카드 크기는 유지하고 3장씩 슬라이드로 확인합니다.</p>
               </div>
               <div class="owned-category-tools">
                 <span class="pill">${group.units.length}장</span>
@@ -78,7 +78,7 @@ function renderOwnedUnitCategories(units) {
               <div id="ownedSlider-${group.key}" class="owned-category-track">
                   ${group.units.length > 0 
                     ? group.units.map((unit) => `<div class="owned-slide-card">${unitCard(unit, `onclick="deployUnitToField(${unit.id})"`)}</div>`).join("")
-                    : `<div class="slot empty" style="width: 100%; min-height: 100px; opacity: 0.5;">대기 중인 카드가 없습니다.</div>`
+                    : `<div class="slot empty" style="width: 100%; min-height: 190px; opacity: 0.5;">대기 중인 카드가 없습니다.</div>`
                   }
               </div>
             </div>
@@ -93,10 +93,10 @@ function scrollOwnedCategory(categoryKey, direction) {
   const slider = document.getElementById(`ownedSlider-${categoryKey}`);
   if (!slider) return;
   const firstCard = slider.querySelector(".owned-slide-card");
-  const cardWidth = firstCard ? firstCard.getBoundingClientRect().width : slider.clientWidth / 2;
-  const gap = 12;
+  const cardWidth = firstCard ? firstCard.getBoundingClientRect().width : slider.clientWidth / 3;
+  const gap = 8;
   slider.scrollBy({
-    left: direction * ((cardWidth + gap) * 2),
+    left: direction * ((cardWidth + gap) * 3),
     behavior: "smooth"
   });
 }
@@ -141,6 +141,7 @@ function deployUnitToField(unitId) {
   gameState.fieldUnits.push(unitId);
   cleanupRecombinationSlots();
   setMessage("유닛을 필드에 배치했습니다.");
+  playSnapSound();
   updateSynergies();
   render();
 }
@@ -164,6 +165,7 @@ function removeUnitFromField(unitId) {
   gameState.fieldUnits = gameState.fieldUnits.filter((id) => id !== unitId);
   cleanupRecombinationSlots();
   setMessage("유닛을 대기 카드로 되돌렸습니다.");
+  playSnapSound();
   updateSynergies();
   render();
 }
@@ -239,6 +241,30 @@ function healMissingHpPercent(percent) {
   addLog(message);
   setMessage(message);
   return healedTotal;
+}
+
+// 유닛 배치/해제 시 발생하는 '착' 사운드 효과
+function playSnapSound() {
+  try {
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContext) return;
+    const ctx = new AudioContext();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = 'square'; // 약간 둔탁하고 짧은 타격감
+    osc.frequency.setValueAtTime(400, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(100, ctx.currentTime + 0.08);
+
+    gain.gain.setValueAtTime(0.15, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.08);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.start();
+    osc.stop(ctx.currentTime + 0.08);
+  } catch (e) { }
 }
 
 function removeDeadPlayerUnits() {
