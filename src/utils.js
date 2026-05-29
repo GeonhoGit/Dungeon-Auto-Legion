@@ -768,10 +768,12 @@ function generateDungeonMap(nodeCount) {
     const isFirstLayer = currentLayerIndex === 0;
     const layerSize = Math.min(remainingNodes, isFirstLayer ? 1 : Math.floor(randomBetween(2, 4)));
     const currentLayer = [];
-    const sectionWidth = 80 / layerSize;
+    const sectionWidth = 100 / layerSize;
 
     for (let i = 0; i < layerSize; i++) {
-      const x = 10 + (i * sectionWidth) + (sectionWidth / 2) + randomBetween(-sectionWidth * 0.3, sectionWidth * 0.3);
+      const basePath = (i * sectionWidth) + (sectionWidth / 2);
+      // 노드가 겹치지 않도록 가로 할당 영역을 정하고 랜덤 오차 범위를 대폭 축소
+      const x = basePath + randomBetween(-sectionWidth * 0.15, sectionWidth * 0.15);
       const roomType = generateBalancedRoomType(currentLayerIndex, estimatedLayers);
       currentLayer.push({ id, layer: currentLayerIndex, roomType, nextIds: [], x });
       id += 1;

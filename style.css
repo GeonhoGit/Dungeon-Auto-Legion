@@ -48,9 +48,20 @@ button:hover:not(:disabled) {
   border-color: #f0ce83;
 }
 
+button:active:not(:disabled) {
+  transform: translateY(1px);
+  filter: brightness(0.95);
+}
+
 button:disabled {
   cursor: not-allowed;
   opacity: 0.55;
+}
+
+.hint {
+  color: var(--muted);
+  font-size: 14px;
+  margin-top: 4px;
 }
 
 .app-shell {
@@ -206,7 +217,7 @@ button:disabled {
 
 .owned-unit-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 12px;
 }
 
@@ -233,11 +244,14 @@ button:disabled {
 
 .card {
   cursor: pointer;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .card:hover,
 .slot.filled:hover {
   border-color: var(--gold);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
 }
 
 .field-card {
@@ -248,7 +262,7 @@ button:disabled {
 .field-grid .field-card,
 .empty-field-slot {
   width: 100%;
-  min-height: 150px;
+  min-height: 190px;
   padding: 12px;
   border-radius: 8px;
   box-sizing: border-box;
@@ -386,7 +400,14 @@ button:disabled {
   display: grid;
   place-items: center;
   padding: 24px;
-  background: rgba(5, 4, 7, 0.72);
+  background: rgba(5, 4, 7, 0.65);
+  backdrop-filter: blur(4px);
+  animation: fadeInModal 0.2s ease-out forwards;
+}
+
+@keyframes fadeInModal {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .squad-preview-modal {
@@ -446,8 +467,8 @@ button:disabled {
 }
 
 .meta {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
   column-gap: 12px;
   row-gap: 6px;
   color: var(--muted);
@@ -751,7 +772,7 @@ button:disabled {
 
 .unit-card {
   position: relative;
-  min-height: 150px;
+  min-height: 190px;
   overflow: visible;
   transition: opacity 0.18s ease, filter 0.18s ease;
 }
@@ -1092,22 +1113,22 @@ button:disabled {
 .map-list {
   display: grid;
   gap: 12px;
-  margin-top: 14px;
+  margin-top: 32px; /* 전체 지도가 맨 위에서부터 조금 더 내려와서 시작하도록 여백 추가 */
 }
 
 .map-row {
   position: relative;
   height: 80px;
-  margin-bottom: 12px;
+  margin-bottom: 64px; /* 노드들이 아래쪽으로 더 시원하게 뻗어 나가도록 간격 대폭 증가 */
 }
 
 .map-node {
   display: grid;
   place-items: center;
   gap: 2px;
-  width: 78px;
-  min-height: 70px;
-  padding: 8px;
+  width: 70px; /* 블록 가로 크기 축소 */
+  min-height: 64px; /* 블록 세로 크기 축소 */
+  padding: 6px;
   color: var(--text);
   background: #1a1720;
   border-color: var(--line);
@@ -1115,7 +1136,7 @@ button:disabled {
 
 .map-node small {
   color: var(--muted);
-  font-size: 11px;
+  font-size: 11px; /* 블록이 작아짐에 따라 내부 글씨 크기도 약간 축소 */
 }
 
 .map-node.available {
@@ -1309,7 +1330,7 @@ button:disabled {
 .owned-unit-grid,
 .squad-preview-owned {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
 }
 
@@ -1330,7 +1351,7 @@ button:disabled {
 .empty-field-slot,
 .slot.empty {
   width: 100%;
-  min-height: 160px;
+  min-height: 190px;
   box-sizing: border-box;
 }
 
@@ -1339,9 +1360,10 @@ button:disabled {
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px dashed rgba(255, 255, 255, 0.35);
+  border: 1px dashed rgba(255, 255, 255, 0.25);
+  background: rgba(0, 0, 0, 0.15);
   border-radius: 12px;
-  opacity: 0.7;
+  color: #8a7d96;
 }
 
 .stat-breakdown {
@@ -1377,12 +1399,12 @@ button:disabled {
 
 /* 부대 관리 창 확장 / 전투 필드 카운트 제거 적용 패치 */
 .app-shell {
-  width: 85vw;
-  max-width: 2400px;
+  width: 100%;
+  max-width: 100%;
 }
 
 .three-column-layout {
-  grid-template-columns: minmax(320px, 24%) minmax(600px, 1fr) minmax(280px, 21%);
+  grid-template-columns: minmax(250px, 17%) minmax(650px, 1fr) minmax(360px, 24%);
   gap: 20px;
 }
 
@@ -1391,7 +1413,7 @@ button:disabled {
 }
 
 .squad-management-panel .split {
-  grid-template-columns: minmax(0, 1.45fr) minmax(260px, 0.85fr);
+  grid-template-columns: 1fr 1fr;
   gap: 20px;
 }
 
@@ -1564,7 +1586,7 @@ button:disabled {
 
 .owned-category-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
 }
 
@@ -1647,8 +1669,8 @@ button:disabled {
 }
 
 .owned-slide-card {
-  flex: 0 0 calc((100% - 24px) / 3);
-  min-width: calc((100% - 24px) / 3);
+  flex: 0 0 calc((100% - 8px) / 2);
+  min-width: calc((100% - 8px) / 2);
   scroll-snap-align: start;
 }
 
@@ -1656,9 +1678,9 @@ button:disabled {
   width: 100%;
 }
 
-/* The old grid class may still exist in cached markup; keep it three-up. */
+/* The old grid class may still exist in cached markup */
 .owned-category-grid {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 @media (max-width: 900px) {
@@ -1678,8 +1700,8 @@ button:disabled {
 
 @media (min-width: 901px) and (max-width: 1180px) {
   .owned-slide-card {
-    flex-basis: calc((100% - 24px) / 3);
-    min-width: calc((100% - 24px) / 3);
+    flex-basis: calc((100% - 8px) / 2);
+    min-width: calc((100% - 8px) / 2);
   }
 }
 
@@ -1765,7 +1787,8 @@ body > .unit-tooltip {
   transform: translateX(-50%) translateY(10px);
   width: max-content;
   max-width: 320px;
-  background: rgba(15, 12, 18, 0.96);
+  background: rgba(15, 12, 18, 0.85);
+  backdrop-filter: blur(6px);
   border: 1px solid var(--gold);
   border-radius: 8px;
   padding: 12px;
@@ -1916,7 +1939,7 @@ body {
 }
 
 /* 전체 스크롤바 디자인 (스크롤바가 예쁘게 보이도록 추가) */
-::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.02); border-radius: 4px; }
 ::-webkit-scrollbar-thumb { background: rgba(230, 184, 92, 0.3); border-radius: 4px; }
 ::-webkit-scrollbar-thumb:hover { background: rgba(230, 184, 92, 0.6); }
@@ -2044,4 +2067,39 @@ body {
 }
 .screen-fade-in {
   animation: screenFadeIn 0.4s ease-out forwards;
+}
+
+/* ==========================================
+   독립형 측면 광고 레이아웃 (게임 공간 침범 X)
+   ========================================== */
+/* 게임 영역 레이아웃 공간 확보 및 중앙 정렬 */
+#app {
+  width: 100%;
+  height: 100%;
+  margin: 0 auto;
+  padding-bottom: 90px; /* 하단 광고에 게임 UI가 가려지지 않도록 공간 확보 */
+  overflow: hidden;
+}
+
+.app-shell {
+  height: 100% !important;
+  max-width: 100% !important;
+}
+
+/* 화면 하단 중앙에 고정된 형태 */
+.ad-bottom-banner {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 728px;
+  height: 90px;
+  z-index: 1000;
+}
+
+@media (max-width: 768px) {
+  /* 모바일 등 좁은 화면에서 가로 배너가 깨질 위험이 있으면 숨김 */
+  .ad-bottom-banner {
+    display: none !important;
+  }
 }

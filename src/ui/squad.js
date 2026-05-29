@@ -60,13 +60,13 @@ function renderOwnedUnitCategories(units) {
   return `
     <div class="owned-category-list">
       ${groupUnitsByJob(units).map((group) => {
-        const canSlide = group.units.length > 3;
+        const canSlide = group.units.length > 2;
         return `
           <section class="owned-category owned-category-${group.key}">
             <div class="owned-category-header">
               <div>
                 <h4>${group.title}</h4>
-                <p class="hint">카드 크기는 유지하고 3장씩 슬라이드로 확인합니다.</p>
+                <p class="hint">카드 크기는 유지하고 2장씩 슬라이드로 확인합니다.</p>
               </div>
               <div class="owned-category-tools">
                 <span class="pill">${group.units.length}장</span>
@@ -93,10 +93,10 @@ function scrollOwnedCategory(categoryKey, direction) {
   const slider = document.getElementById(`ownedSlider-${categoryKey}`);
   if (!slider) return;
   const firstCard = slider.querySelector(".owned-slide-card");
-  const cardWidth = firstCard ? firstCard.getBoundingClientRect().width : slider.clientWidth / 3;
+  const cardWidth = firstCard ? firstCard.getBoundingClientRect().width : slider.clientWidth / 2;
   const gap = 12;
   slider.scrollBy({
-    left: direction * ((cardWidth + gap) * 3),
+    left: direction * ((cardWidth + gap) * 2),
     behavior: "smooth"
   });
 }

@@ -54,6 +54,7 @@ function render() {
     ${gameState.isInventoryModalOpen ? renderInventoryModal() : ""}
     ${gameState.isUpgradeModalOpen ? renderUpgradeModal() : ""}
     ${gameState.isBattleStatsModalOpen ? renderBattleStatsModal() : ""}
+    ${gameState.isHelpModalOpen ? renderHelpModal() : ""}
   `;
 
   if (gameState.screen === "dungeon") renderDungeon();
@@ -216,7 +217,7 @@ function closeHelpModal() {
 }
 
 function changeHelpSlide(dir) {
-  const maxSlides = 5;
+  const maxSlides = 6;
   const prevSlide = gameState.currentHelpSlide || 0;
   let nextSlide = prevSlide + dir;
   if (nextSlide < 0) nextSlide = 0;
@@ -233,7 +234,7 @@ function renderHelpModal() {
     {
       title: "1. 단축키 및 조작",
       content: `
-        <ul style="text-align:left; line-height:2.0; margin-top:10px; font-size: 15px; color: #d1c7b7;">
+        <ul style="text-align:left; line-height:2.0; margin-top:10px; font-size: 16px; color: #d1c7b7;">
           <li><strong style="color:var(--gold)">Spacebar</strong>: 전투 시작, 결과 대기 스킵, 다음 방 이동</li>
           <li><strong style="color:var(--gold)">숫자 키 (1~9)</strong>: 보상/옵션 선택, <strong style="color:var(--gold)">전투 중 배속 변경 (1~3)</strong></li>
           <li><strong style="color:var(--gold)">R 키</strong>: 상점 목록 새로고침</li>
@@ -242,35 +243,55 @@ function renderHelpModal() {
       `
     },
     {
-      title: "2. 보석(Gems)의 활용",
+      title: "2. 전투 및 사령관 스킬",
       content: `
-        <ul style="text-align:left; line-height:2.0; margin-top:10px; font-size: 15px; color: #d1c7b7;">
-          <li><strong style="color:var(--gem)">획득처</strong>: 보스 처치(확정), 일반 전투 승리(낮은 확률), 이벤트 등</li>
-          <li><strong style="color:var(--gem)">영구 강화</strong>: 화면 상단의 <strong style="color:#fff">영구 강화 제단</strong>에서 부대 한도, 보너스 스탯 등을 올릴 수 있습니다. <strong style="color:var(--red)">(새 게임 시에도 유지)</strong></li>
-          <li><strong style="color:var(--gem)">프리미엄 상점</strong>: 상점에서 보석을 지불하여 전설 등급 용병과 장비를 뽑을 수 있습니다.</li>
+        <ul style="text-align:left; line-height:1.8; margin-top:10px; font-size: 15.5px; color: #d1c7b7;">
+          <li><strong style="color:var(--blue)">자동 전투</strong>: 배치된 유닛들은 자동으로 적과 싸우며 쿨타임마다 고유 스킬을 사용합니다.</li>
+          <li><strong style="color:var(--gold)">사령관 스킬</strong>: 전투 하단에서 '신성한 강림(전체 회복)', '벼락(고정 피해+기절)'을 사용할 수 있습니다. (AUTO 버튼 지원)</li>
+          <li><strong style="color:var(--red)">보스전 (타임어택)</strong>: 30초 내에 보스를 처치하지 못하면 광폭화하여 공격력이 폭증하며, 체력이 절반 이하가 되면 2페이즈에 돌입합니다.</li>
         </ul>
       `
     },
     {
-      title: "3. 게임 진행 팁",
+      title: "3. 유닛 성장 및 재조합",
       content: `
-        <ul style="text-align:left; line-height:2.0; margin-top:10px; font-size: 15px; color: #d1c7b7;">
-          <li><strong style="color:var(--blue)">시너지 도감</strong>: 도감을 열어 부대에 가장 강력한 조합을 직접 맞춰보세요.</li>
-          <li><strong style="color:var(--green)">배속 전투</strong>: 우측 상단 버튼을 클릭하거나 <strong style="color:var(--gold)">숫자 1,2,3 키</strong>를 눌러 전투 속도를 변경할 수 있습니다.</li>
-          <li><strong style="color:#e5a4ff">유닛 진화</strong>: 1성 유닛 3마리를 모으면 2성으로, 다시 2성 3마리를 모으면 3성으로 자동 합성됩니다.</li>
+        <ul style="text-align:left; line-height:1.8; margin-top:10px; font-size: 15.5px; color: #d1c7b7;">
+          <li><strong style="color:#e5a4ff">자동 진화</strong>: 같은 직업, 같은 등급의 유닛 카드를 3장 모으면 다음 등급으로 자동 진화합니다.</li>
+          <li><strong style="color:var(--green)">재조합</strong>: 안 쓰는 동급 카드들을 합성(재조합)하여 무작위 동급 카드를 뽑을 수 있습니다. (20% 확률로 대성공 상위 등급 획득)</li>
+          <li><strong style="color:var(--gold)">배치 한도</strong>: 상점에서 필드 슬롯을 확장해 더 많은 유닛을 전투에 내보내세요.</li>
         </ul>
       `
     },
     {
-      title: "4. 주요 시너지 요약",
+      title: "4. 보석(Gems)과 영구 강화",
       content: `
-        <div style="text-align:left; line-height:1.6; font-size: 13.5px; color: #d1c7b7; height: 160px; overflow-y: auto; padding-right: 4px;">
+        <ul style="text-align:left; line-height:1.8; margin-top:10px; font-size: 15.5px; color: #d1c7b7;">
+          <li><strong style="color:var(--gem)">획득처</strong>: 보스 처치(확정), 일반 전투 승리(1% 확률), 이벤트 방 등</li>
+          <li><strong style="color:var(--gem)">영구 강화</strong>: 인벤토리의 [영구 강화]에서 보석을 사용해 기본 능력치를 영구적으로 강화합니다. <strong style="color:var(--red)">(새 게임 시에도 유지)</strong></li>
+          <li><strong style="color:var(--gem)">프리미엄 상점</strong>: 상점에서 보석을 지불하여 전설/신화 용병, 장비, 직업 문장을 확정 구매할 수 있습니다.</li>
+        </ul>
+      `
+    },
+    {
+      title: "5. 주요 상태 이상 및 버프",
+      content: `
+        <ul style="text-align:left; line-height:1.7; margin-top:10px; font-size: 15.5px; color: #d1c7b7;">
+          <li><strong style="color:#888888">기절</strong>: 지속시간 동안 모든 행동(공격 및 스킬) 불가</li>
+          <li><strong style="color:#ff5500">화상</strong>: 매초 대상의 최대 체력에 비례한 지속 피해</li>
+          <li><strong style="color:#55cc00">중독</strong>: 매초 시전자의 공격력에 비례한 지속 피해</li>
+          <li><strong style="color:#cc0000">출혈</strong>: 매초 대상의 현재 체력에 비례한 지속 피해</li>
+          <li><strong style="color:#7a42f4">치유감소</strong>: 회복 및 흡혈량 대폭 감소 효과.</li>
+          <li><strong style="color:var(--blue)">공속↓</strong> / <strong style="color:var(--red)">공격력↑</strong> / <strong style="color:var(--gold)">방어력↑</strong>: 스탯 일시 증감.</li>
+        </ul>
+      `
+    },
+    {
+      title: "6. 주요 시너지 요약",
+      content: `
+        <div style="text-align:left; line-height:1.6; font-size: 14.5px; color: #d1c7b7; height: 260px; overflow-y: auto; padding-right: 4px;">
           <table style="width:100%; border-collapse: collapse; text-align: left;">
             <tr style="border-bottom: 1px solid var(--line); color: var(--gold);">
               <th style="padding: 4px 0;">시너지명</th><th style="padding: 4px 0;">조합 직업</th><th style="padding: 4px 0;">핵심 효과</th>
-            </tr>
-            <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
-              <td style="padding: 4px 0;">2인 조합</td><td style="padding: 4px 0;">서로 다른 직업 2명</td><td style="padding: 4px 0;">기초적인 시너지 효과 발동</td>
             </tr>
             <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
               <td style="padding: 4px 0;">성전사단</td><td style="padding: 4px 0;">수호자+전사+치유사</td><td style="padding: 4px 0;">체력/방어력/회복 증가</td>
@@ -285,24 +306,11 @@ function renderHelpModal() {
               <td style="padding: 4px 0;">전쟁광</td><td style="padding: 4px 0;">전사+도적+마녀</td><td style="padding: 4px 0;">공격력/흡혈 증가</td>
             </tr>
             <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
-              <td style="padding: 4px 0;">단일 직업</td><td style="padding: 4px 0;">같은 직업 3/4/5명</td><td style="padding: 4px 0;">직업 고유 스탯 폭발적 증가</td>
+              <td style="padding: 4px 0;">단일 직업</td><td style="padding: 4px 0;">같은 직업 3명 이상</td><td style="padding: 4px 0;">직업 고유 스탯 폭발적 증가</td>
             </tr>
           </table>
           <p style="margin-top:10px; color:var(--muted); font-size:12px; text-align:center;">* 전체 시너지 목록은 인게임의 <strong>[시너지 도감]</strong>에서 확인하세요!</p>
         </div>
-      `
-    },
-    {
-      title: "5. 주요 상태 이상 및 버프",
-      content: `
-        <ul style="text-align:left; line-height:1.8; margin-top:10px; font-size: 14.5px; color: #d1c7b7;">
-          <li><strong style="color:#888888">기절 (Stun)</strong>: 지속시간 동안 행동(공격 및 스킬)이 일시적으로 불가능해집니다.</li>
-          <li><strong style="color:#ff5500">화상 (Burn)</strong>: 매초 대상의 최대 체력에 비례한 지속 피해를 입힙니다.</li>
-          <li><strong style="color:#55cc00">중독 (Poison)</strong>: 매초 시전자의 공격력에 비례한 지속 피해를 입힙니다.</li>
-          <li><strong style="color:#cc0000">출혈 (Bleed)</strong>: 매초 부여 시점 대상의 현재 체력에 비례한 지속 피해를 입힙니다.</li>
-          <li><strong style="color:#7a42f4">치유감소 (Heal Debuff)</strong>: 받는 모든 체력 회복 효과(흡혈 포함)가 크게 감소합니다.</li>
-          <li><strong style="color:var(--blue)">공속↓</strong> / <strong style="color:var(--red)">공격력↑</strong> / <strong style="color:var(--gold)">방어력↑</strong>: 해당 스탯이 일시적으로 감소하거나 증가합니다.</li>
-        </ul>
       `
     }
   ];
@@ -312,12 +320,12 @@ function renderHelpModal() {
 
   return `
     <div class="modal-backdrop" onclick="closeHelpModal()" style="z-index: 9999;">
-      <section class="panel squad-preview-modal" style="max-width: 540px; text-align:center; padding: 32px;" onclick="event.stopPropagation()">
+      <section class="panel squad-preview-modal" style="max-width: 720px; text-align:center; padding: 32px;" onclick="event.stopPropagation()">
         <div class="modal-header" style="justify-content: center; position: relative;">
           <h2 style="color: var(--blue); margin: 0;">게임 도움말</h2>
           <button onclick="closeHelpModal()" style="position: absolute; right: 0; top: 0;">닫기</button>
         </div>
-        <div class="${animClass}" style="min-height: 220px; padding: 20px 10px; display:flex; flex-direction:column; justify-content:center;">
+        <div class="${animClass}" style="min-height: 360px; padding: 20px 10px; display:flex; flex-direction:column; justify-content:center;">
           <h3 style="color:var(--gold); margin-bottom: 16px; font-size: 20px;">${slide.title}</h3>
           <div>${slide.content}</div>
         </div>
@@ -347,6 +355,7 @@ function renderTopbar() {
         <strong>Dungeon Auto Legion</strong>
         ${gameState.screen !== "start" ? `
           <button onclick="saveGameProgress()" style="padding: 4px 10px; font-size: 13px; background: transparent; border: 1px solid var(--line); color: var(--muted);">저장</button>
+          <button onclick="openHelpModal()" style="padding: 4px 10px; font-size: 13px; background: transparent; border: 1px solid var(--line); color: var(--muted);">도움말</button>
         ` : ""}
       </div>
     </header>

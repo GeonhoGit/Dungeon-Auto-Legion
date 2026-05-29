@@ -43,13 +43,6 @@ function renderEnd(title, body) {
       <h2 class="${isGameOver ? 'game-over-title' : ''}">${title}</h2>
       <p class="hint">${body}</p>
       ${statsHtml}
-      <!-- 게임 오버 화면 애드센스 광고 영역 -->
-      <div class="ad-container" style="margin: 24px 0; min-height: 100px; text-align: center;">
-        <ins class="adsbygoogle"
-             style="display:inline-block;width:320px;height:100px"
-             data-ad-client="ca-pub-5196833558159966"
-             data-ad-slot="YOUR_SLOT_ID"></ins>
-      </div>
       <div class="actions">
         ${reviveButtonHtml}
         <button onclick="startGame()">새 게임 시작</button>
@@ -57,7 +50,6 @@ function renderEnd(title, body) {
       </div>
     </section>
   `;
-  try { (window.adsbygoogle = window.adsbygoogle || []).push({}); } catch (e) {}
 }
 
 function revive() {
