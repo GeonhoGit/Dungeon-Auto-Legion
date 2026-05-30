@@ -7,6 +7,16 @@ function render() {
     window._activeTooltipNode = null;
   }
 
+  // 애드센스 정책 준수를 위해 콘텐츠가 적은 화면(시작 화면, 게임 오버)에서는 광고를 숨김 처리
+  const adBanner = document.getElementById("ad-bottom-banner");
+  if (adBanner) {
+    if (gameState.screen === "start" || gameState.screen === "gameover") {
+      adBanner.style.display = "none";
+    } else {
+      adBanner.style.display = "block";
+    }
+  }
+
   if (gameState.screen === "start") {
     renderStart();
     return;
